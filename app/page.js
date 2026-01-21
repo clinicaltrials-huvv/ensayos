@@ -1,18 +1,29 @@
 import { supabase } from "../lib/supabaseClient";
 
-export const revalidate = 60; // refresca cada 60s en Vercel
+export const revalidate = 60;
 
 export default async function Home() {
   const { data: trials, error } = await supabase
     .from("trials")
-    .select("id, title, tumor, phase, treatment_type, lines_prior, status, external_url")
-    .order("title", { ascending: true });
+    .select(`
+      id,
+      name,
+      tumor_type,
+      prior_lines,
+      status,
+      molecule_type,
+      characteristics,
+      slots_available,
+      phase,
+      link
+    `)
+    .order("name", { ascending: true });
 
   return (
-    <main style={{ maxWidth: 1100, margin: "0 auto", padding: 24, fontFamily: "system-ui" }}>
+    <main style={{ maxWidth: 1200, margin: "0 auto", padding: 24, fontFamily: "system-ui" }}>
       <h1 style={{ fontSize: 28, marginBottom: 8 }}>Ensayos clínicos</h1>
       <p style={{ marginTop: 0, color: "#444" }}>
-        Listado público con filtros (fase 1). Próximo: búsqueda y filtros avanzados.
+        Listado público de ensayos disponibles.
       </p>
 
       {error && (
@@ -26,35 +37,29 @@ export default async function Home() {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              {["Ensayo", "Tumor", "Fase", "Tratamiento", "Líneas previas", "Estado", "Enlace"].map((h) => (
-                <th
-                  key={h}
-                  style={{
-                    textAlign: "left",
-                    borderBottom: "1px solid #ddd",
-                    padding: "10px 8px",
-                    fontSize: 13,
-                    color: "#333",
-                    whiteSpace: "nowrap"
-                  }}
-                >
-                  {h}
-                </th>
-              ))}
+              <th>Ensayo</th>
+              <th>Tipo tumoral</th>
+              <th>Fase</th>
+              <th>Tipo de molécula</th>
+              <th>Líneas previas</th>
+              <th>Estado</th>
+              <th>Slots</th>
+              <th>Enlace</th>
             </tr>
           </thead>
           <tbody>
             {(trials || []).map((t) => (
               <tr key={t.id}>
-                <td style={{ padding: "10px 8px", borderBottom: "1px solid #eee" }}>{t.title || "-"}</td>
-                <td style={{ padding: "10px 8px", borderBottom: "1px solid #eee" }}>{t.tumor || "-"}</td>
-                <td style={{ padding: "10px 8px", borderBottom: "1px solid #eee" }}>{t.phase || "-"}</td>
-                <td style={{ padding: "10px 8px", borderBottom: "1px solid #eee" }}>{t.treatment_type || "-"}</td>
-                <td style={{ padding: "10px 8px", borderBottom: "1px solid #eee" }}>{t.lines_prior ?? "-"}</td>
-                <td style={{ padding: "10px 8px", borderBottom: "1px solid #eee" }}>{t.status || "-"}</td>
-                <td style={{ padding: "10px 8px", borderBottom: "1px solid #eee" }}>
-                  {t.external_url ? (
-                    <a href={t.external_url} target="_blank" rel="noreferrer">
+                <td>{t.name || "-"}</td>
+                <td>{t.tumor_type || "-"}</td>
+                <td>{t.phase || "-"}</td>
+                <td>{t.molecule_type || "-"}</td>
+                <td>{t.prior_lines ?? "-"}</td>
+                <td>{t.status || "-"}</td>
+                <td>{t.slots_available ? "Sí" : "No"}</td>
+                <td>
+                  {t.link ? (
+                    <a href={t.link} target="_blank" rel="noreferrer">
                       Ver
                     </a>
                   ) : (
@@ -65,8 +70,8 @@ export default async function Home() {
             ))}
             {!error && (trials || []).length === 0 && (
               <tr>
-                <td colSpan={7} style={{ padding: "12px 8px", color: "#555" }}>
-                  No hay ensayos todavía en la tabla <code>trials</code>.
+                <td colSpan={8} style={{ padding: "12px 8px", color: "#555" }}>
+                  No hay ensayos todavía.
                 </td>
               </tr>
             )}
