@@ -55,8 +55,8 @@ export default async function Home() {
                 <td>{t.phase || "-"}</td>
                 <td>{t.molecule_type || "-"}</td>
                 <td>{t.prior_lines ?? "-"}</td>
-                <td>{t.status || "-"}</td>
-                <td>{t.slots_available ? "Sí" : "No"}</td>
+                <td>{t.status === true ? "Activo" : "No activo"}</td>
+                <td>{t.slots_available || "-"}</td>
                 <td>
                   {t.link ? (
                     <a href={t.link} target="_blank" rel="noreferrer">
